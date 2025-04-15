@@ -8,12 +8,14 @@ import {
   Icon, 
   useColorModeValue,
   SimpleGrid,
-  HStack
+  HStack,
+  Flex
 } from '@chakra-ui/react'
 import { 
   FaUpload, 
   FaDownload, 
-  FaLock 
+  FaLock,
+  FaShare 
 } from 'react-icons/fa'
 import { Link as RouterLink } from 'react-router-dom'
 import Header from '../components/Header'
@@ -24,46 +26,65 @@ const FeatureCard = ({ icon, title, description }) => {
 
   return (
     <Box
-      p={6}
+      p={8}
       bg={bgColor}
       borderRadius="xl"
       border="1px solid"
       borderColor={borderColor}
       textAlign="center"
       boxShadow="lg"
+      _hover={{
+        transform: 'translateY(-4px)',
+        boxShadow: 'xl',
+      }}
+      transition="all 0.3s"
     >
-      <Icon as={icon} w={10} h={10} color="purple.500" mb={4} />
-      <Heading size="md" mb={2}>{title}</Heading>
-      <Text color="gray.500">{description}</Text>
+      <Icon as={icon} w={12} h={12} color="purple.500" mb={6} />
+      <Heading size="md" mb={4}>{title}</Heading>
+      <Text color="gray.500" fontSize="lg">{description}</Text>
     </Box>
   )
 }
 
 const Home = () => {
+  const bgGradient = useColorModeValue(
+    'linear(to-b, purple.50, white)',
+    'linear(to-b, purple.900, gray.900)'
+  )
+
   return (
-    <>
+    <Box bgGradient={bgGradient}>
       <Header />
-      <Container maxW="container.lg" py={10}>
-        <VStack spacing={16}>
-          {/* Hero Section with Action Buttons */}
+      <Container maxW="container.xl" py={20}>
+        <VStack spacing={20}>
+          {/* Hero Section */}
           <VStack spacing={8} textAlign="center">
-            <VStack spacing={4}>
-              <Heading size="xl">
+            <VStack spacing={6}>
+              <Heading 
+                size="2xl" 
+                bgGradient="linear(to-r, purple.400, purple.600)" 
+                bgClip="text"
+                color="black"
+              >
                 Simple and Secure File Sharing
               </Heading>
-              <Text fontSize="lg" color="gray.500" maxW="2xl">
-                Upload your files and share them with a simple code. No account required.
+              <Text fontSize="xl" color="gray.500" maxW="2xl">
+                Upload your files and share them with a simple code. 
+                No account required, just drag & drop.
               </Text>
             </VStack>
             
             {/* Action Buttons */}
-            <HStack spacing={4} pt={4}>
+            <Flex gap={6} pt={6} flexWrap="wrap" justify="center">
               <Button
                 as={RouterLink}
                 to="/upload"
                 size="lg"
                 colorScheme="purple"
                 leftIcon={<Icon as={FaUpload} />}
+                px={8}
+                h={14}
+                fontSize="lg"
                 _hover={{
                   transform: 'translateY(-2px)',
                   boxShadow: 'lg',
@@ -79,6 +100,9 @@ const Home = () => {
                 colorScheme="purple"
                 variant="outline"
                 leftIcon={<Icon as={FaDownload} />}
+                px={8}
+                h={14}
+                fontSize="lg"
                 _hover={{
                   transform: 'translateY(-2px)',
                   boxShadow: 'lg',
@@ -87,7 +111,7 @@ const Home = () => {
               >
                 Download File
               </Button>
-            </HStack>
+            </Flex>
           </VStack>
 
           {/* Features Grid */}
@@ -95,22 +119,22 @@ const Home = () => {
             <FeatureCard
               icon={FaUpload}
               title="Easy Upload"
-              description="Drag & drop your files or click to upload. Get a sharing code instantly."
+              description="Drag & drop or click to upload. Get a sharing code instantly."
             />
             <FeatureCard
-              icon={FaDownload}
-              title="Quick Download"
-              description="Enter the code and download files instantly. No waiting time."
+              icon={FaShare}
+              title="Quick Sharing"
+              description="Share your files securely using a simple code system."
             />
             <FeatureCard
               icon={FaLock}
-              title="Secure Sharing"
-              description="Your files are encrypted and secure. Only share the code with trusted people."
+              title="Secure Storage"
+              description="Files are encrypted and stored securely on Supabase servers."
             />
           </SimpleGrid>
         </VStack>
       </Container>
-    </>
+    </Box>
   )
 }
 
