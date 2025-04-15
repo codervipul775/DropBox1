@@ -117,7 +117,7 @@ const Home = () => {
             <FeatureCard
               icon={FaUpload}
               title="Easy Upload"
-              description="Drag & drop or click to upload. Get a sharing code instantly."
+              description="Drag & drop or click to upload files up to 10MB. Get a sharing code instantly."
             />
             <FeatureCard
               icon={FaShare}

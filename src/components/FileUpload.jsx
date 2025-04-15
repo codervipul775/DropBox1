@@ -139,10 +139,10 @@ const FileUpload = () => {
         )}
 
         <VStack spacing={2}>
-          <Heading size="xl">Convert File to URL</Heading>
+          <Heading size="xl">Convert File to CODE</Heading>
           <Text color="gray.500" textAlign="center">
             Easily convert any file to a shareable URL with DropBox's free file converter. 
-            Generate URLs instantly for easy sharing.
+            Generate Codes instantly for easy sharing.
           </Text>
         </VStack>
 
@@ -166,7 +166,7 @@ const FileUpload = () => {
               <Text fontSize="xl">Drop, paste or</Text>
               <Text color="blue.500" fontWeight="bold">upload here</Text>
               <Text color="gray.500" fontSize="sm">
-                Accepts files (up to 100MB)
+                Accepts files (up to 10MB)
               </Text>
             </VStack>
           </Center>
@@ -179,12 +179,7 @@ const FileUpload = () => {
           />
         </Box>
 
-        <Text fontSize="sm" color="gray.500" textAlign="center">
-          By uploading your file, you agree to our{' '}
-          <Link color="blue.500" href="#">Terms of Use</Link>
-          {' '}&{' '}
-          <Link color="blue.500" href="#">Privacy Policy</Link>
-        </Text>
+      
 
         {/* Features section */}
         <VStack spacing={4} pt={4}>
