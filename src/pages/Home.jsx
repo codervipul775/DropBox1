@@ -62,9 +62,7 @@ const Home = () => {
             <VStack spacing={6}>
               <Heading 
                 size="2xl" 
-                bgGradient="linear(to-r, purple.400, purple.600)" 
-                bgClip="text"
-                color="black"
+                color={useColorModeValue('black', 'white')}
               >
                 Simple and Secure File Sharing
               </Heading>
