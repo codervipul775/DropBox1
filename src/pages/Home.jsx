@@ -5,93 +5,18 @@ import {
   Button, 
   VStack, 
   Container, 
-  Flex, 
   Icon, 
   useColorModeValue,
   SimpleGrid,
-  IconButton,
-  HStack,
-  Badge,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  Image,
-  Divider,
-  Progress,
-  Tag,
-  Tooltip,
-  Avatar,
-  AvatarGroup,
-  useToast,
-  Textarea,
-  FormControl,
-  FormLabel,
-  Input,
-  Select,
-  ModalFooter
+  HStack
 } from '@chakra-ui/react'
-import { Link } from 'react-router-dom'
 import { 
   FaUpload, 
   FaDownload, 
-  FaShieldAlt, 
-  FaLock, 
-  FaRocket, 
-  FaInfinity,
-  FaArrowRight,
-  FaTimes,
-  FaUsers,
-  FaGlobe,
-  FaChartLine,
-  FaStar,
-  FaHeart,
-  FaRegHeart,
-  FaComment
+  FaLock 
 } from 'react-icons/fa'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
-import Header from '../components/Header'
 import { Link as RouterLink } from 'react-router-dom'
-
-const MotionBox = motion(Box)
-const MotionButton = motion(Button)
-
-const features = [
-  {
-    icon: FaShieldAlt,
-    title: 'Secure Sharing',
-    description: 'End-to-end encryption for all your files',
-    tags: ['Security', 'Privacy'],
-    users: 12000
-  },
-  {
-    icon: FaLock,
-    title: 'Privacy First',
-    description: 'Your files are yours alone',
-    tags: ['Encryption', 'Control'],
-    users: 8500
-  },
-  {
-    icon: FaRocket,
-    title: 'Lightning Fast',
-    description: 'Upload and download at maximum speed',
-    tags: ['Performance', 'Speed'],
-    users: 15000
-  },
-  {
-    icon: FaInfinity,
-    title: 'Unlimited Storage',
-    description: 'Store as much as you need',
-    tags: ['Storage', 'Flexibility'],
-    users: 20000
-  }
-]
-
-const testimonials = []  // Empty array for testimonials
+import Header from '../components/Header'
 
 const FeatureCard = ({ icon, title, description }) => {
   const bgColor = useColorModeValue('white', 'gray.800')
@@ -115,67 +40,6 @@ const FeatureCard = ({ icon, title, description }) => {
 }
 
 const Home = () => {
-  const bgGradient = useColorModeValue(
-    'linear(to-r, purple.500, pink.500)',
-    'linear(to-r, purple.400, pink.400)'
-  )
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const [selectedFeature, setSelectedFeature] = useState(null)
-  const [isLiked, setIsLiked] = useState(false)
-  const toast = useToast()
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
-  const [reviewData, setReviewData] = useState({
-    name: '',
-    role: '',
-    rating: 5,
-    review: ''
-  })
-
-  const handleLike = () => {
-    setIsLiked(!isLiked)
-    toast({
-      title: !isLiked ? "Thank you for your support!" : "Removed from favorites",
-      status: !isLiked ? "success" : "info",
-      duration: 2000,
-      isClosable: true,
-    })
-  }
-
-  const handleReviewSubmit = () => {
-    if (!reviewData.name || !reviewData.review) {
-      toast({
-        title: 'Please fill in required fields',
-        status: 'error',
-        duration: 3000,
-      })
-      return
-    }
-
-    // Here you would typically send the review to your backend
-    toast({
-      title: 'Thank you for your review!',
-      description: 'Your feedback helps us improve.',
-      status: 'success',
-      duration: 3000,
-    })
-
-    // Add the new review to testimonials (in a real app, this would come from the backend)
-    testimonials.unshift({
-      name: reviewData.name,
-      role: reviewData.role || 'User',
-      text: reviewData.review,
-      rating: parseInt(reviewData.rating)
-    })
-
-    setReviewData({
-      name: '',
-      role: '',
-      rating: 5,
-      review: ''
-    })
-    setIsReviewModalOpen(false)
-  }
-
   return (
     <>
       <Header />
