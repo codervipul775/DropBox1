@@ -3,7 +3,10 @@ import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 import Home from './pages/Home'
 import Upload from './pages/Upload'
 import Download from './pages/Download'
+import Review from './pages/Review'
+import Admin from './pages/Admin'
 import Layout from './components/Layout'
+import { ReviewProvider } from './context/ReviewContext'
 
 const theme = extendTheme({
   config: {
@@ -29,15 +32,19 @@ const theme = extendTheme({
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/download" element={<Download />} />
-          </Routes>
-        </Layout>
-      </Router>
+      <ReviewProvider>
+        <Router>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/upload" element={<Upload />} />
+              <Route path="/download" element={<Download />} />
+              <Route path="/reviews" element={<Review />} />
+              <Route path="/admin" element={<Admin />} />
+            </Routes>
+          </Layout>
+        </Router>
+      </ReviewProvider>
     </ChakraProvider>
   )
 }

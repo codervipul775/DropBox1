@@ -15,7 +15,7 @@ import {
   FaUpload, 
   FaDownload, 
   FaLock,
-  FaShare 
+  FaShare
 } from 'react-icons/fa'
 import { Link as RouterLink } from 'react-router-dom'
 import Header from '../components/Header'

@@ -1,6 +1,6 @@
 import { Box, Container, Flex, Button, Heading, useColorModeValue, useColorMode } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
-import { FaMoon, FaSun } from 'react-icons/fa'
+import { FaMoon, FaSun, FaStar } from 'react-icons/fa'
 
 const Layout = ({ children }) => {
   const { colorMode, toggleColorMode } = useColorMode()
@@ -47,6 +47,15 @@ const Layout = ({ children }) => {
                 colorScheme="purple"
               >
                 Download
+              </Button>
+              <Button
+                as={RouterLink}
+                to="/reviews"
+                variant="ghost"
+                colorScheme="purple"
+                leftIcon={<FaStar />}
+              >
+                Reviews
               </Button>
               <Button
                 onClick={toggleColorMode}
