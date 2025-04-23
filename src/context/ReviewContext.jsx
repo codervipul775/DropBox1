@@ -1,102 +1,193 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useToast } from '@chakra-ui/react'
+import { supabase } from '../services/supabase'
 
 const ReviewContext = createContext()
 
-const initialReviews = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    rating: 5,
-    date: "2024-03-15",
-    comment: "This file sharing service is incredibly easy to use. The drag and drop feature makes uploading files a breeze!",
-    status: "approved",
-    avatar: "https://bit.ly/sarah-johnson"
-  },
-  {
-    id: 2,
-    name: "Michael Chen",
-    rating: 4,
-    date: "2024-03-14",
-    comment: "Great service! The security features give me peace of mind when sharing sensitive documents.",
-    status: "pending",
-    avatar: "https://bit.ly/michael-chen"
-  }
-]
-
 export const ReviewProvider = ({ children }) => {
-  const [reviews, setReviews] = useState(() => {
-    const savedReviews = localStorage.getItem('reviews')
-    return savedReviews ? JSON.parse(savedReviews) : initialReviews
-  })
+  const [reviews, setReviews] = useState([])
+  const [loading, setLoading] = useState(true)
   const toast = useToast()
 
+  // Fetch reviews from Supabase
   useEffect(() => {
-    localStorage.setItem('reviews', JSON.stringify(reviews))
-  }, [reviews])
+    fetchReviews()
+  }, [])
 
-  const addReview = (newReview) => {
-    const review = {
-      ...newReview,
-      id: Date.now(),
-      status: 'pending',
-      date: new Date().toISOString().split('T')[0],
-      avatar: `https://bit.ly/${newReview.name.toLowerCase().replace(/\s+/g, '-')}`
+  const fetchReviews = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setReviews(data || [])
+    } catch (error) {
+      console.error('Error fetching reviews:', error)
+      toast({
+        title: "Error fetching reviews",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+      })
+    } finally {
+      setLoading(false)
     }
-    setReviews(prevReviews => [review, ...prevReviews])
-    toast({
-      title: "Review submitted",
-      description: "Your review is pending approval",
-      status: "success",
-      duration: 3000,
-    })
   }
 
-  const deleteReview = (id) => {
-    setReviews(prevReviews => prevReviews.filter(review => review.id !== id))
-    toast({
-      title: "Review deleted",
-      status: "success",
-      duration: 3000,
-    })
+  const addReview = async (newReview) => {
+    try {
+      // Validate rating
+      const rating = parseInt(newReview.rating)
+      if (isNaN(rating) || rating < 1 || rating > 5) {
+        throw new Error('Rating must be between 1 and 5')
+      }
+
+      const review = {
+        name: newReview.name.trim(),
+        rating: rating,
+        comment: newReview.comment.trim(),
+        status: 'pending',
+        avatar: `https://bit.ly/${newReview.name.toLowerCase().trim().replace(/\s+/g, '-')}`
+        // created_at will be set by Supabase default value
+      }
+
+      const { data, error } = await supabase
+        .from('reviews')
+        .insert([review])
+        .select()
+
+      if (error) throw error
+
+      setReviews(prevReviews => [data[0], ...prevReviews])
+      toast({
+        title: "Review submitted",
+        description: "Your review is pending approval",
+        status: "success",
+        duration: 3000,
+      })
+    } catch (error) {
+      console.error('Error adding review:', error)
+      toast({
+        title: "Error submitting review",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+      })
+    }
   }
 
-  const updateReviewStatus = (id, newStatus) => {
-    setReviews(prevReviews => 
-      prevReviews.map(review =>
-        review.id === id 
-          ? { ...review, status: newStatus }
-          : review
+  const deleteReview = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      setReviews(prevReviews => prevReviews.filter(review => review.id !== id))
+      toast({
+        title: "Review deleted",
+        status: "success",
+        duration: 3000,
+      })
+    } catch (error) {
+      console.error('Error deleting review:', error)
+      toast({
+        title: "Error deleting review",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+      })
+    }
+  }
+
+  const updateReviewStatus = async (id, newStatus) => {
+    try {
+      if (!['pending', 'approved'].includes(newStatus)) {
+        throw new Error('Invalid status value')
+      }
+
+      const { error } = await supabase
+        .from('reviews')
+        .update({ status: newStatus })
+        .eq('id', id)
+
+      if (error) throw error
+
+      setReviews(prevReviews => 
+        prevReviews.map(review =>
+          review.id === id 
+            ? { ...review, status: newStatus }
+            : review
+        )
       )
-    )
-    toast({
-      title: `Review ${newStatus}`,
-      status: "success",
-      duration: 3000,
-    })
+      toast({
+        title: `Review ${newStatus}`,
+        status: "success",
+        duration: 3000,
+      })
+    } catch (error) {
+      console.error('Error updating review status:', error)
+      toast({
+        title: "Error updating review",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+      })
+    }
   }
 
-  const updateReview = (id, updatedData) => {
-    setReviews(prevReviews =>
-      prevReviews.map(review =>
-        review.id === id 
-          ? { 
-              ...review, 
-              ...updatedData,
-              avatar: `https://bit.ly/${updatedData.name.toLowerCase().replace(/\s+/g, '-')}`
-            }
-          : review
+  const updateReview = async (id, updatedData) => {
+    try {
+      // Validate rating
+      const rating = parseInt(updatedData.rating)
+      if (isNaN(rating) || rating < 1 || rating > 5) {
+        throw new Error('Rating must be between 1 and 5')
+      }
+
+      const update = {
+        name: updatedData.name.trim(),
+        rating: rating,
+        comment: updatedData.comment.trim(),
+        avatar: `https://bit.ly/${updatedData.name.toLowerCase().trim().replace(/\s+/g, '-')}`
+      }
+
+      const { error } = await supabase
+        .from('reviews')
+        .update(update)
+        .eq('id', id)
+
+      if (error) throw error
+
+      setReviews(prevReviews =>
+        prevReviews.map(review =>
+          review.id === id 
+            ? { ...review, ...update }
+            : review
+        )
       )
-    )
-    toast({
-      title: "Review updated",
-      status: "success",
-      duration: 3000,
-    })
+      toast({
+        title: "Review updated",
+        status: "success",
+        duration: 3000,
+      })
+    } catch (error) {
+      console.error('Error updating review:', error)
+      toast({
+        title: "Error updating review",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+      })
+    }
   }
 
   const value = {
     reviews,
+    loading,
     addReview,
     deleteReview,
     updateReviewStatus,
