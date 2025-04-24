@@ -30,11 +30,10 @@ import {
   Textarea,
   Divider
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FaTrash, FaEdit, FaStar, FaKey } from 'react-icons/fa'
 import { useReviews } from '../context/ReviewContext'
-
-const DEFAULT_PASSWORD = "admin123"
+import { supabase } from '../services/supabase'
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -51,25 +50,42 @@ const Admin = () => {
   const bgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
 
-  const handleLogin = () => {
-    const savedPassword = localStorage.getItem('adminPassword') || DEFAULT_PASSWORD
-    if (password === savedPassword) {
-      setIsAuthenticated(true)
+  const handleLogin = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('admin_settings')
+        .select('setting_value')
+        .eq('setting_key', 'admin_password')
+        .single()
+
+      if (error) throw error
+
+      if (password === data.setting_value) {
+        setIsAuthenticated(true)
+        toast({
+          title: "Login successful",
+          status: "success",
+          duration: 3000,
+        })
+      } else {
+        toast({
+          title: "Invalid password",
+          status: "error",
+          duration: 3000,
+        })
+      }
+    } catch (error) {
+      console.error('Login error:', error)
       toast({
-        title: "Login successful",
-        status: "success",
-        duration: 3000,
-      })
-    } else {
-      toast({
-        title: "Invalid password",
+        title: "Error during login",
+        description: error.message,
         status: "error",
         duration: 3000,
       })
     }
   }
 
-  const handleChangePassword = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault()
     if (newPassword !== confirmPassword) {
       toast({
@@ -79,15 +95,34 @@ const Admin = () => {
       })
       return
     }
-    localStorage.setItem('adminPassword', newPassword)
-    toast({
-      title: "Password changed successfully",
-      status: "success",
-      duration: 3000,
-    })
-    onPasswordModalClose()
-    setNewPassword("")
-    setConfirmPassword("")
+
+    try {
+      const { error } = await supabase
+        .from('admin_settings')
+        .upsert({
+          setting_key: 'admin_password',
+          setting_value: newPassword
+        })
+
+      if (error) throw error
+
+      toast({
+        title: "Password changed successfully",
+        status: "success",
+        duration: 3000,
+      })
+      onPasswordModalClose()
+      setNewPassword("")
+      setConfirmPassword("")
+    } catch (error) {
+      console.error('Password change error:', error)
+      toast({
+        title: "Error changing password",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+      })
+    }
   }
 
   const handleEditReview = (review) => {
