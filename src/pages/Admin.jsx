@@ -99,10 +99,8 @@ const Admin = () => {
     try {
       const { error } = await supabase
         .from('admin_settings')
-        .upsert({
-          setting_key: 'admin_password',
-          setting_value: newPassword
-        })
+        .update({ setting_value: newPassword })
+        .eq('setting_key', 'admin_password')
 
       if (error) throw error
 
