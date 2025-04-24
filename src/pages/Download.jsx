@@ -16,11 +16,24 @@ import {
   Progress,
   Flex,
   Divider,
-  Spinner
+  Spinner,
+  ScaleFade,
+  Fade,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  useBreakpointValue,
+  IconButton,
+  Tooltip,
+  Collapse,
+  SimpleGrid
 } from '@chakra-ui/react'
 import { useParams } from 'react-router-dom'
 import { getFileByCode } from '../services/supabase'
-import { FaDownload, FaFile, FaSearch, FaCheck, FaTimes, FaEye } from 'react-icons/fa'
+import { FaDownload, FaFile, FaSearch, FaCheck, FaTimes, FaEye, FaLock, FaClock, FaFileAlt } from 'react-icons/fa'
+import Header from '../components/Header'
 
 const Download = () => {
   const { code: urlCode } = useParams()
@@ -32,6 +45,9 @@ const Download = () => {
   const toast = useToast()
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const bgColor = useColorModeValue('white', 'gray.800')
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const hoverBg = useColorModeValue('gray.50', 'gray.700')
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
   const handleSearch = async () => {
     if (!code) {
@@ -39,6 +55,8 @@ const Download = () => {
         title: 'Please enter a code',
         status: 'error',
         duration: 3000,
+        position: 'top',
+        isClosable: true,
       })
       return
     }
@@ -56,6 +74,8 @@ const Download = () => {
         description: 'Click the download button to get your file',
         status: 'success',
         duration: 3000,
+        position: 'top',
+        isClosable: true,
       })
     } catch (error) {
       setFileData(null)
@@ -64,6 +84,8 @@ const Download = () => {
         description: error.message,
         status: 'error',
         duration: 3000,
+        position: 'top',
+        isClosable: true,
       })
     } finally {
       setLoading(false)
@@ -78,128 +100,202 @@ const Download = () => {
 
   const handleView = () => {
     if (fileData?.url) {
-      // Open in new tab but with preview mode
       const previewUrl = fileData.url.replace('/download/', '/view/')
       window.open(previewUrl, '_blank')
     }
   }
 
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
   return (
-    <Container maxW="container.md" py={10}>
-      <VStack 
-        spacing={6} 
-        w="full" 
-        maxW="500px" 
-        mx="auto" 
-        mt={8}
-        p={8}
-        borderRadius="xl"
-        border="1px solid"
-        borderColor={borderColor}
-        bg={bgColor}
-        boxShadow="lg"
-      >
-        <Box textAlign="center">
-          <Icon as={FaDownload} w={12} h={12} color="purple.400" mb={4} />
-          <Heading size="xl" mb={2}>
-            Download File
-          </Heading>
-          <Text color="gray.500">
-            Enter the file code to download your file
-          </Text>
-        </Box>
-
-        <VStack spacing={4} w="full">
-          <Input
-            placeholder="Enter file code"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            
-            borderRadius="lg"
-            _focus={{
-              borderColor: 'purple.400',
-              boxShadow: '0 0 0 1px purple.400',
-            }}
-          />
-          
-          <Button
-            colorScheme="purple"
-            onClick={handleSearch}
-            isLoading={loading}
-            w="full"
-            leftIcon={<Icon as={FaSearch} />}
-            
-            borderRadius="lg"
-            isDisabled={!code}
-          >
-            Search File
-          </Button>
-
-          {fileData && (
-            <Box 
-              w="full" 
-              p={6} 
-              borderRadius="lg" 
-              border="1px solid" 
-              borderColor={borderColor}
+    <Box minH="100vh" bgGradient={useColorModeValue(
+      'linear(to-b, purple.50, white)',
+      'linear(to-b, purple.900, gray.900)'
+    )}>
+      <Header />
+      <Container maxW="container.xl" py={10}>
+        <VStack spacing={12}>
+          <VStack spacing={4} textAlign="center">
+            <Heading 
+              size="2xl" 
+              bgGradient="linear(to-r, purple.400, pink.400)" 
+              bgClip="text"
             >
-              <VStack spacing={4} align="stretch">
-                <HStack spacing={4}>
-                  <Icon as={FaFile} w={8} h={8} color="purple.400" />
-                  <Box>
-                    <Text fontWeight="bold" fontSize="lg">
-                      {fileData.name}
-                    </Text>
-                  </Box>
-                </HStack>
+              Download Your File
+            </Heading>
+            <Text fontSize="xl" color="gray.500" maxW="2xl">
+              Enter your unique code to access and download your file securely
+            </Text>
+          </VStack>
 
-                <HStack spacing={4} w="full">
+          <ScaleFade in={true} initialScale={0.9}>
+            <Box
+              p={8}
+              bg={cardBg}
+              borderRadius="2xl"
+              borderWidth="1px"
+              borderColor={borderColor}
+              boxShadow="2xl"
+              transition="all 0.3s"
+              _hover={{
+                boxShadow: '3xl',
+                bg: hoverBg,
+              }}
+              w="full"
+              maxW="600px"
+            >
+              <VStack spacing={6}>
+                <HStack w="full" spacing={4}>
+                  <Input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    placeholder="Enter your file code"
+                    size="lg"
+                    focusBorderColor="purple.400"
+                  />
                   <Button
                     colorScheme="purple"
-                    w="full"
-                    leftIcon={<Icon as={FaEye} />}
-                    borderRadius="lg"
-                    onClick={handleView}
-                    variant="outline"
+                    size="lg"
+                    onClick={handleSearch}
+                    isLoading={loading}
+                    loadingText="Searching..."
+                    leftIcon={<FaSearch />}
+                    _hover={{
+                      transform: 'translateY(-2px)',
+                      boxShadow: 'lg',
+                    }}
+                    transition="all 0.2s"
                   >
-                    View File
+                    Search
                   </Button>
-
-                  <Link href={fileData.url} isExternal w="full">
-                    <Button
-                      colorScheme="purple"
-                      w="full"
-                      leftIcon={<Icon as={FaDownload} />}
-                      borderRadius="lg"
-                      onClick={handleDownload}
-                      isLoading={isDownloading}
-                      loadingText="Downloading..."
-                    >
-                      Download
-                    </Button>
-                  </Link>
                 </HStack>
+
+                <Collapse in={!!fileData} animateOpacity>
+                  <Box
+                    p={6}
+                    bg={useColorModeValue('gray.50', 'gray.700')}
+                    borderRadius="xl"
+                    w="full"
+                  >
+                    <VStack spacing={4} align="start">
+                      <HStack spacing={4} w="full" justify="space-between">
+                        <HStack spacing={4}>
+                          <Icon as={FaFileAlt} boxSize={8} color="purple.500" />
+                          <VStack align="start" spacing={0}>
+                            <Text fontWeight="bold" fontSize="lg">{fileData?.name}</Text>
+                            <Text color="gray.500" fontSize="sm">
+                              {formatFileSize(fileData?.size || 0)}
+                            </Text>
+                          </VStack>
+                        </HStack>
+                        <Badge
+                          colorScheme="purple"
+                          px={3}
+                          py={1}
+                          borderRadius="full"
+                          fontSize="sm"
+                        >
+                          {fileData?.type || 'File'}
+                        </Badge>
+                      </HStack>
+
+                      <Divider />
+
+                      <HStack spacing={4} w="full" justify="space-between">
+                        <HStack spacing={4}>
+                          <Tooltip label="Download">
+                            <IconButton
+                              icon={<FaDownload />}
+                              colorScheme="purple"
+                              onClick={handleDownload}
+                              aria-label="Download"
+                              size="lg"
+                            />
+                          </Tooltip>
+                          <Tooltip label="Preview">
+                            <IconButton
+                              icon={<FaEye />}
+                              colorScheme="purple"
+                              variant="outline"
+                              onClick={handleView}
+                              aria-label="Preview"
+                              size="lg"
+                            />
+                          </Tooltip>
+                        </HStack>
+                        <HStack spacing={2}>
+                          <Icon as={FaLock} color="green.500" />
+                          <Text fontSize="sm" color="gray.500">Secure Download</Text>
+                        </HStack>
+                      </HStack>
+                    </VStack>
+                  </Box>
+                </Collapse>
               </VStack>
             </Box>
-          )}
+          </ScaleFade>
 
-          {loading && !fileData && (
-            <Box textAlign="center" py={4}>
-              <Spinner
-                thickness="4px"
-                speed="0.65s"
-                emptyColor="gray.200"
-                color="purple.500"
-                size="xl"
-              />
-              <Text mt={4} color="gray.500">
-                Searching for your file...
-              </Text>
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} w="full">
+            <Box
+              p={6}
+              bg={cardBg}
+              borderRadius="xl"
+              borderWidth="1px"
+              borderColor={borderColor}
+              boxShadow="lg"
+            >
+              <VStack spacing={4}>
+                <Icon as={FaLock} boxSize={8} color="purple.500" />
+                <Text fontWeight="bold" fontSize="lg">Secure Downloads</Text>
+                <Text color="gray.500" textAlign="center">
+                  Your files are encrypted and protected during transfer
+                </Text>
+              </VStack>
             </Box>
-          )}
+
+            <Box
+              p={6}
+              bg={cardBg}
+              borderRadius="xl"
+              borderWidth="1px"
+              borderColor={borderColor}
+              boxShadow="lg"
+            >
+              <VStack spacing={4}>
+                <Icon as={FaClock} boxSize={8} color="purple.500" />
+                <Text fontWeight="bold" fontSize="lg">Fast Access</Text>
+                <Text color="gray.500" textAlign="center">
+                  Quick and easy access to your files with a simple code
+                </Text>
+              </VStack>
+            </Box>
+
+            <Box
+              p={6}
+              bg={cardBg}
+              borderRadius="xl"
+              borderWidth="1px"
+              borderColor={borderColor}
+              boxShadow="lg"
+            >
+              <VStack spacing={4}>
+                <Icon as={FaFile} boxSize={8} color="purple.500" />
+                <Text fontWeight="bold" fontSize="lg">Multiple Formats</Text>
+                <Text color="gray.500" textAlign="center">
+                  Support for various file types and sizes
+                </Text>
+              </VStack>
+            </Box>
+          </SimpleGrid>
         </VStack>
-      </VStack>
-    </Container>
+      </Container>
+    </Box>
   )
 }
 
